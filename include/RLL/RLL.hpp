@@ -134,13 +134,13 @@ class loader_flags {
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Unix loader flag in the internal flags.
         /// @param flag The flag that is searched for.
-        /// @return bool Wether the flag is present.
+        /// @return bool Whether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
         bool has_flag(unix_flag flag);
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Windows loader flag in the internal flags.
         /// @param flag The flag that is searched for.
-        /// @return bool Wether the flag is present.
+        /// @return bool Whether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
         bool has_flag(windows_flag flag);
 
@@ -172,7 +172,7 @@ class loader_flags {
 /// @details Hey! This is a simple class that allows for simple yet powerful
 /// interface for loading and processing shared libraries (dynamic libraries) at
 /// run-time. It is completely multi-platform (for the operating systems you
-/// have actually heard of atleast, :P) and the API is too! 
+/// have actually heard of at least, :P) and the API is too! 
 ///
 /// It has an exception-based way of processing errors (no more error codes,
 /// yay!). This means if you haven't properly loaded a library before you try to
@@ -196,7 +196,7 @@ class loader_flags {
 ///     add_function = reinterpret_cast<func_type*>(test_lib.get_symbol("add"));
 /// }
 ///
-/// std::cout <<  add_function(2, 4) << "\n"; //returns "6";
+/// std::cout << add_function(2, 4) << "\n"; //returns "6";
 ///
 /// test_lib.unload(); //Clears object and closes the shared library.
 ///
@@ -230,7 +230,7 @@ class shared_library {
 		/// it with no flags on Windows or the default flag
 		/// (RTLD_LAZY/LOAD_LAZY) on Unix. If it fails to load the shared
 		/// library it will throw a `library_not_loaded` exception with the
-		/// relevent information. If a library is already loaded into the object
+		/// relevant information. If a library is already loaded into the object
 		/// then it throws a `library_already_loaded` exception.
 		///
 		/// @param path The path to the shared library.
@@ -264,14 +264,14 @@ class shared_library {
 		void unload();
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Returns wether a shared library has been loaded into the object.
+		/// @brief Returns whether a shared library has been loaded into the object.
 		/// @return true A shared library is loaded.
 		/// @return false A shared library isn't loaded.
 		////////////////////////////////////////////////////////////////////////////////
 		bool is_loaded();
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Returns wether the loaded shared library has a symbol in it.
+		/// @brief Returns whether the loaded shared library has a symbol in it.
 		///
 		/// @details It looks for a symbol. Simple as that. But if a library
 		/// hasn't been loaded it throws an `library_not_loaded` exception.
@@ -285,7 +285,7 @@ class shared_library {
 		bool has_symbol(const std::string& name){ return get_symbol_fast(name) != nullptr; }
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Attempts to retreive a symbol.
+		/// @brief Attempts to retrieve a symbol.
 		///
 		/// @details It attempts to find a symbol but if it can't find a symbol
 		/// it throws a `symbol_not_found` error. If a shared library has not
@@ -306,13 +306,13 @@ class shared_library {
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Get a symbol without exception handling.
         ///
-        /// @details A fast symbol accesser that doesn't handle exception states
+        /// @details A fast symbol accessor that doesn't handle exception states
         /// for faster runtimes. This is only to be used if you know what you
         /// are doing. You can get any errors with the corresponding platform
         /// backends.
         ///
         /// @param name The name of the symbol attempting to be accessed.
-        /// @return void* A pointer to the acessed symbol (typically a nullptr
+        /// @return void* A pointer to the accessed symbol (typically a nullptr
         /// if it failed.)
         ////////////////////////////////////////////////////////////////////////////////
         void * get_symbol_fast(const std::string& name) noexcept;
@@ -344,7 +344,7 @@ class shared_library {
 		/// suffix for libraries. I.e. Windows: ".dll", MacOS: ".dylib",
 		/// Unix/other: ".so"
 		///
-		/// @return std::string The commonly used platform file extention for
+		/// @return std::string The commonly used platform file extension for
 		/// shared libraries. 
 		////////////////////////////////////////////////////////////////////////////////
 		static std::string get_platform_suffix();
