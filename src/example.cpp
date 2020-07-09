@@ -4,11 +4,8 @@
 
 using namespace rll::windows_flags;
 
-
-
-int main(){
+int main() {
     const char * abc = "abc";
 
     std::cout << std::boolalpha << strcmp(abc, "abc") << "\n";
-
 }

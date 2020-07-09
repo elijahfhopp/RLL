@@ -68,7 +68,7 @@ TEST_CASE("Constructing loader_flags works"){
 
     loader_flags all_loader_flags(all_unix_flags_il, all_windows_flags_il);
     //Note that it is all the Unix flags minus LOAD_LAZY because LOAD_NOW
-    //and LOAD_LAZY are mutally exclusive, and the second should overwrite the
+    //and LOAD_LAZY are mutually exclusive, and the second should overwrite the
     //first in the list.
     REQUIRE(all_loader_flags.get_unix_flags() == (all_unix_flags & ~LOAD_LAZY));
     REQUIRE(all_loader_flags.get_windows_flags() == all_windows_flags);
@@ -113,6 +113,3 @@ TEST_CASE("Clearing flags works"){
     flags.clear_windows_flags();
     REQUIRE(flags.get_windows_flags() == 0);
 }
-
-            
-        

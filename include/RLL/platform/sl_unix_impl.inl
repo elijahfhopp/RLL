@@ -5,8 +5,9 @@
 std::mutex shared_library::_mutex;
 
 shared_library::shared_library(){
-	lib_handle = 0;
+	lib_handle = nullptr;
 }
+
 shared_library::~shared_library(){}
 
 void shared_library::load(const std::string& path, int flags){
