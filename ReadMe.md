@@ -14,16 +14,16 @@ int main(){
 
     try {
         my_lib.load("./my_lib.so");
-        //OR
-        //my_lib.load([path], [loader_flags])
-    } catch(rll::exception::library_loading_error& e){
-        //Handle exceptions.
+        // OR
+        // my_lib.load([path], [loader_flags])
+    } catch (rll::exception::library_loading_error& e) {
+        // Handle exceptions.
     }
 
-    if(my_lib.has_symbol("my_symbol")){
+    if (my_lib.has_symbol("my_symbol")) {
         void * my_func_ptr = my_lib.get_symbol("my_func");
         std::function<void()> my_func = reinterpret_cast<void(*)()>(my_func_ptr);
-        my_func(); //Does something... :). Maybe says "Hello, World!" or the sort.
+        my_func(); // Does something... :). Maybe says "Hello, World!" or the sort.
     }
 }
 ```
@@ -58,13 +58,13 @@ int main(){
 
     try {
         my_lib.load("./my_lib.so");
-        //OR
-        //my_lib.load([path], [loader_flags])
-    } catch(rll::exception::library_loading_error& e){
-        //Handle exceptions.
+        // OR
+        // my_lib.load([path], [loader_flags])
+    } catch (rll::exception::library_loading_error& e) {
+        // Handle exceptions.
     }
 
-    if(my_lib.has_symbol("my_symbol")){
+    if (my_lib.has_symbol("my_symbol")) {
         void * my_symbol_ptr = my_lib.get_symbol("my_symbol");
     }
 }

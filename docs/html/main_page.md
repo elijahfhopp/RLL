@@ -10,13 +10,13 @@ int main(){
 
     try {
         my_lib.load("./my_lib.so");
-        //OR
-        //my_lib.load([path], [loader_flags])
-    } catch(rll::exception::library_loading_error& e){
-        //Handle exceptions.
+        // OR
+        // my_lib.load([path], [loader_flags])
+    } catch (rll::exception::library_loading_error& e) {
+        // Handle exceptions.
     }
 
-    if(my_lib.has_symbol("my_symbol")){
+    if (my_lib.has_symbol("my_symbol")) {
         void * my_symbol_ptr = my_lib.get_symbol("my_symbol");
     }
 }

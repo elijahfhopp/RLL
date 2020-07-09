@@ -10,7 +10,7 @@ Dis be a dummy library for RLL's test framework.
 
 extern "C" {
 
-API_EXPORT int add(int a, int b){
+API_EXPORT int add(int a, int b) {
     return a + b;
 }
 
