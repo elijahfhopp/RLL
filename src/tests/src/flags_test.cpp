@@ -13,7 +13,7 @@ using namespace rll::windows_flags;
 
 std::initializer_list<unix_flag> all_unix_flags_il {
     LOAD_LAZY, 
-    LOAD_NOW, // Note this is second in the list and when passed to a ctor it should take preference over the first.
+    LOAD_NOW, //Note this is second in the list and when passed to a ctor it should take preference over the first.
     LOAD_LOCAL,
     LOAD_GLOBAL,
     LOAD_DEEPBIND,
@@ -61,20 +61,20 @@ unsigned int all_windows_flags =
 	| SEARCH_USER_DIRS
 	| SEARCH_WITH_ALTERED_PATH;
 
-TEST_CASE("Constructing loader_flags works") {
+TEST_CASE("Constructing loader_flags works"){
     loader_flags default_flags;
     REQUIRE(default_flags.get_unix_flags() == LOAD_LAZY);
     REQUIRE(default_flags.get_windows_flags() == 0);
 
     loader_flags all_loader_flags(all_unix_flags_il, all_windows_flags_il);
     //Note that it is all the Unix flags minus LOAD_LAZY because LOAD_NOW
-    //and LOAD_LAZY are mutally exclusive, and the second should overwrite the
+    //and LOAD_LAZY are mutually exclusive, and the second should overwrite the
     //first in the list.
     REQUIRE(all_loader_flags.get_unix_flags() == (all_unix_flags & ~LOAD_LAZY));
     REQUIRE(all_loader_flags.get_windows_flags() == all_windows_flags);
 }
 
-TEST_CASE("Adding flags works") {
+TEST_CASE("Adding flags works"){
     loader_flags flags {
         { LOAD_LAZY, LOAD_LOCAL },
         {}        
@@ -86,12 +86,12 @@ TEST_CASE("Adding flags works") {
     REQUIRE(flags.get_unix_flags() == (LOAD_LAZY | LOAD_GLOBAL | LOAD_LOCAL));
     REQUIRE(flags.get_windows_flags() == LOAD_AS_DATAFILE);
 
-    // Exclusive flags.
+    //Exclusive flags.
     flags.add_flag(LOAD_NOW);
     REQUIRE(flags.get_unix_flags() == (LOAD_NOW | LOAD_GLOBAL | LOAD_LOCAL));
 }
 
-TEST_CASE("Removing flags works") {
+TEST_CASE("Removing flags works"){
     loader_flags flags(all_unix_flags_il, all_windows_flags_il);
 
     flags.remove_flag(LOAD_GLOBAL);
@@ -104,7 +104,7 @@ TEST_CASE("Removing flags works") {
     REQUIRE(flags.get_unix_flags() == (all_unix_flags & ~LOAD_NOW));
 }
 
-TEST_CASE("Clearing flags works") {
+TEST_CASE("Clearing flags works"){
     loader_flags flags(all_unix_flags_il, all_windows_flags_il);
 
     flags.clear_unix_flags();
