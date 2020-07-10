@@ -12,7 +12,7 @@
 //----------------------------SHARED_LIBRARY_TEST-----------------------------//
 using namespace rll;
 
-TEST_CASE("Opening and using a shared library works") {
+TEST_CASE("Opening and using a shared library works"){
     bool exception_state = false;
     shared_library library;
     REQUIRE(library.is_loaded() == false);
@@ -20,7 +20,7 @@ TEST_CASE("Opening and using a shared library works") {
 
     try {
         library.load("./dummy_library.library");
-    } catch (exception::rll_exception& e) {
+    } catch(exception::rll_exception& e){
         std::cout << "Encountered an error loading the library:\n" << e.what() << "\n";
         exception_state = true;
     }
@@ -33,7 +33,7 @@ TEST_CASE("Opening and using a shared library works") {
     std::function<int(int, int)> add_func;
     try {
         add_func = reinterpret_cast<int (*)(int, int)>(library.get_symbol("add"));
-    } catch (exception::rll_exception& e) {
+    } catch(exception::rll_exception& e){
         std::cout << "Encountered an error while getting the \"add\" symbol:\n" << e.what() << "\n";
         exception_state = true;
     }
@@ -43,7 +43,7 @@ TEST_CASE("Opening and using a shared library works") {
     std::string abc;
     try {
         abc = static_cast<char *>(library.get_symbol("abc"));
-    } catch (exception::rll_exception& e) {
+    } catch(exception::rll_exception& e){
         std::cout << "Encountered an error while getting the \"abc\" symbol:\n" << e.what() << "\n";
         exception_state = true;
     }
