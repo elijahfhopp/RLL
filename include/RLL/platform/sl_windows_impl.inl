@@ -8,7 +8,9 @@ shared_library::shared_library(){
 	lib_handle = nullptr;
 }
 
-shared_library::~shared_library(){}
+shared_library::~shared_library(){
+	unload();
+}
 
 void shared_library::load(const std::string& path, int flags){
 	std::lock_guard<std::mutex> lock(_mutex);
@@ -51,7 +53,6 @@ void * shared_library::get_symbol(const std::string& name){
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
-		
 		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
 		throw exception::library_not_loaded();

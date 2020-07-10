@@ -8,7 +8,9 @@ shared_library::shared_library(){
 	lib_handle = nullptr;
 }
 
-shared_library::~shared_library(){}
+shared_library::~shared_library(){
+	unload();
+}
 
 void shared_library::load(const std::string& path, int flags){
 	std::lock_guard<std::mutex> lock(_mutex);
@@ -23,6 +25,7 @@ void shared_library::load(const std::string& path, int flags){
 		const char* error = dlerror();
 		throw exception::library_loading_error(error);
 	}
+	
 	lib_path = path;
 }
 
@@ -33,10 +36,12 @@ void shared_library::load(const std::string& path, loader_flags flags){
 void shared_library::unload(){
 	std::lock_guard<std::mutex> lock(_mutex);
 
-	if(lib_handle){
+	if(lib_handle != nullptr){
 		dlclose(lib_handle);
 		lib_handle = nullptr;
 	}
+
+	lib_path.clear();
 }
 
 
