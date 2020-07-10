@@ -4,19 +4,17 @@
 //--------------------------------HEADER_GUARD--------------------------------//
 #ifndef RLL_HPP_
 #define RLL_HPP_
-
 //----------------------------------INCLUDES----------------------------------//
 #include <exception>
 #include <cstring>
 #include <string>
 #include <mutex>
-
 //------------------------------------RLL-------------------------------------//
 #define RLL_VERSION_MAJOR 1
 #define RLL_VERSION_MINOR 0
 #define RLL_VERSION_PATCH 0 
 
-// Packed via major * 10000 + minor * 100 + patch.
+//Packed via major * 10000 + minor * 100 + patch.
 #define RLL_VERSION 10000
 
 #ifdef _WIN32 
@@ -26,7 +24,6 @@
 #endif
 
 namespace rll {
-
 //------------------------------RLL_DECLARATIONS------------------------------//
 namespace exception {
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,11 +31,11 @@ namespace exception {
 ////////////////////////////////////////////////////////////////////////////////
 class rll_exception : public std::exception {};
 
-// All the actual exceptions are declared and defined later...
+//All the actual exceptions are declared and defined later...
 
-} // exception
+} //exception
 
-//-----------------SHARED_LIBRARY_DECLARATION---------------------------------//
+//-----------------SHARED_LIBRARY_DECALARATION-----------------//
 namespace unix_flags {
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief An enum of this: https://linux.die.net/man/3/dlopen.
@@ -53,7 +50,7 @@ enum unix_flag {
     LOAD_NODELETE = 0x01000,
     LOAD_NOLOAD = 0x00004
 };
-} // unix_flag
+} //unix_flag
 
 namespace windows_flags {
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +76,7 @@ enum windows_flag {
     SEARCH_WITH_ALTERED_PATH = 0x00000008,
 };
 
-} // windows_flag
+} //windows_flag
 
 using windows_flag = windows_flags::windows_flag;
 using unix_flag = unix_flags::unix_flag;
@@ -137,13 +134,13 @@ class loader_flags {
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Unix loader flag in the internal flags.
         /// @param flag The flag that is searched for.
-        /// @return bool Wether the flag is present.
+        /// @return bool Whether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
         bool has_flag(unix_flag flag);
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Windows loader flag in the internal flags.
         /// @param flag The flag that is searched for.
-        /// @return bool Wether the flag is present.
+        /// @return bool Whether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
         bool has_flag(windows_flag flag);
 
@@ -175,7 +172,7 @@ class loader_flags {
 /// @details Hey! This is a simple class that allows for simple yet powerful
 /// interface for loading and processing shared libraries (dynamic libraries) at
 /// run-time. It is completely multi-platform (for the operating systems you
-/// have actually heard of atleast, :P) and the API is too! 
+/// have actually heard of at least, :P) and the API is too! 
 ///
 /// It has an exception-based way of processing errors (no more error codes,
 /// yay!). This means if you haven't properly loaded a library before you try to
@@ -183,25 +180,25 @@ class loader_flags {
 ///
 /// Better than anything is a code example:
 /// ```cpp
-/// // The function signature using for briefness.
+/// //The function signature using for briefness.
 /// using func_type = int(int, int);
-/// // Contains a function add two integers:
+/// //Contains a function add two integers:
 /// rll::shared_library test_lib;
 /// try {
 ///     test_lib.load("test_lib.so");
-/// } catch (rll::exception::library_loading_error& e) {
+/// } catch(rll::exception::library_loading_error& e) {
 ///     std::cout << "Oh noes! We had an issue loading the shared library:\n" << e.what() << "\n"; 
 /// }
 ///
 /// std::function<func_type> add_function;
 ///
-/// if (test_lib.has_symbol("add")) {
+/// if(test_lib.has_symbol("add")){
 ///     add_function = reinterpret_cast<func_type*>(test_lib.get_symbol("add"));
 /// }
 ///
-/// std::cout << add_function(2, 4) << "\n"; // returns "6";
+/// std::cout << add_function(2, 4) << "\n"; //returns "6";
 ///
-/// test_lib.unload(); // Clears object and closes the shared library.
+/// test_lib.unload(); //Clears object and closes the shared library.
 ///
 /// //Repeat...
 /// ```
@@ -212,7 +209,7 @@ class shared_library {
 		shared_library& operator=(const shared_library&);
 		//
 		std::string lib_path;
-		void* lib_handle;
+		void * lib_handle;
 		static std::mutex _mutex;
 		//
 		void load(const std::string& path, int flags);
@@ -233,7 +230,7 @@ class shared_library {
 		/// it with no flags on Windows or the default flag
 		/// (RTLD_LAZY/LOAD_LAZY) on Unix. If it fails to load the shared
 		/// library it will throw a `library_not_loaded` exception with the
-		/// relevent information. If a library is already loaded into the object
+		/// relevant information. If a library is already loaded into the object
 		/// then it throws a `library_already_loaded` exception.
 		///
 		/// @param path The path to the shared library.
@@ -241,7 +238,7 @@ class shared_library {
 		/// @throw rll::exception::library_loading_error 
 		/// @throw rll::exception::library_already_loaded
 		////////////////////////////////////////////////////////////////////////////////
-		void load(const std::string& path) { load(path, loader_flags()); }
+		void load(const std::string& path){ load(path, loader_flags()); }
 
 		////////////////////////////////////////////////////////////////////////////////
 		/// @brief Loads a shared library from a path with flags.
@@ -267,14 +264,14 @@ class shared_library {
 		void unload();
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Returns wether a shared library has been loaded into the object.
+		/// @brief Returns whether a shared library has been loaded into the object.
 		/// @return true A shared library is loaded.
 		/// @return false A shared library isn't loaded.
 		////////////////////////////////////////////////////////////////////////////////
 		bool is_loaded();
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Returns wether the loaded shared library has a symbol in it.
+		/// @brief Returns whether the loaded shared library has a symbol in it.
 		///
 		/// @details It looks for a symbol. Simple as that. But if a library
 		/// hasn't been loaded it throws an `library_not_loaded` exception.
@@ -285,10 +282,10 @@ class shared_library {
 		///
 		/// @throw rll::exception::library_not_loaded
 		////////////////////////////////////////////////////////////////////////////////
-		bool has_symbol(const std::string& name) { return get_symbol_fast(name) != nullptr; }
+		bool has_symbol(const std::string& name){ return get_symbol_fast(name) != nullptr; }
 
 		////////////////////////////////////////////////////////////////////////////////
-		/// @brief Attempts to retreive a symbol.
+		/// @brief Attempts to retrieve a symbol.
 		///
 		/// @details It attempts to find a symbol but if it can't find a symbol
 		/// it throws a `symbol_not_found` error. If a shared library has not
@@ -309,13 +306,13 @@ class shared_library {
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Get a symbol without exception handling.
         ///
-        /// @details A fast symbol accesser that doesn't handle exception states
+        /// @details A fast symbol accessor that doesn't handle exception states
         /// for faster runtimes. This is only to be used if you know what you
         /// are doing. You can get any errors with the corresponding platform
         /// backends.
         ///
         /// @param name The name of the symbol attempting to be accessed.
-        /// @return void* A pointer to the acessed symbol (typically a nullptr
+        /// @return void* A pointer to the accessed symbol (typically a nullptr
         /// if it failed.)
         ////////////////////////////////////////////////////////////////////////////////
         void * get_symbol_fast(const std::string& name) noexcept;
@@ -347,7 +344,7 @@ class shared_library {
 		/// suffix for libraries. I.e. Windows: ".dll", MacOS: ".dylib",
 		/// Unix/other: ".so"
 		///
-		/// @return std::string The commonly used platform file extention for
+		/// @return std::string The commonly used platform file extension for
 		/// shared libraries. 
 		////////////////////////////////////////////////////////////////////////////////
 		static std::string get_platform_suffix();
@@ -392,9 +389,9 @@ RLL_DEFINE_EXCEPTION(library_not_loaded, return "A shared_library has not been l
 /// exception is thrown.
 ////////////////////////////////////////////////////////////////////////////////
 RLL_DEFINE_EXCEPTION_W_METADATA(library_loading_error, std::string, loading_error, return (loading_error != "" ? loading_error.c_str() : "Unknown Error.");)
-} // exception
+} //exception
 
-// Shared library platform implementations:
+//Shared library platform implementations:
 #ifdef RLL_PLATFORM_IS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -406,25 +403,25 @@ RLL_DEFINE_EXCEPTION_W_METADATA(library_loading_error, std::string, loading_erro
 #include "platform/sl_unix_impl.inl"
 #endif
 
-loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags) {
+loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
     uflags = 0;
     wflags = 0;
-    for (auto& it : unix_flags) {
+    for(auto& it : unix_flags){
         add_flag(it);
     }
-    for (auto& it : windows_flags) {
+    for(auto& it : windows_flags){
         add_flag(it);
     }
 }
 
-void loader_flags::add_flag(unix_flag flag) { 
+void loader_flags::add_flag(unix_flag flag){ 
     //LOAD_LAZY and LOAD_NOW are mutually exclusive:
-    if (flag == unix_flags::LOAD_LAZY) {
-        if (this->has_flag(unix_flags::LOAD_NOW)) {
+    if(flag == unix_flags::LOAD_LAZY){
+        if(this->has_flag(unix_flags::LOAD_NOW)){
             remove_flag(unix_flags::LOAD_NOW);
         }
-    } else if (flag == unix_flags::LOAD_NOW) {
-        if (this->has_flag(unix_flags::LOAD_LAZY)) {
+    } else if(flag == unix_flags::LOAD_NOW){
+        if(this->has_flag(unix_flags::LOAD_LAZY)){
             remove_flag(unix_flags::LOAD_LAZY);
         }
     }
@@ -432,34 +429,34 @@ void loader_flags::add_flag(unix_flag flag) {
     uflags |= flag; 
 }
 
-void loader_flags::add_flag(windows_flag flag) { wflags |= flag; }
+void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
 
-void loader_flags::remove_flag(unix_flag flag) { 
-    if (flag == unix_flags::LOAD_LAZY) {
+void loader_flags::remove_flag(unix_flag flag){ 
+    if(flag == unix_flags::LOAD_LAZY){
         uflags &= ~flag;
         add_flag(unix_flags::LOAD_NOW);
-    } else if (flag == unix_flags::LOAD_NOW) {
+    } else if(flag == unix_flags::LOAD_NOW){
         uflags &= ~flag;
         add_flag(unix_flags::LOAD_LAZY);
     }
 
     uflags &= ~flag; 
 }
-void loader_flags::remove_flag(windows_flag flag) { wflags &= ~flag; }
+void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
 
-bool loader_flags::has_flag(unix_flag flag) {
+bool loader_flags::has_flag(unix_flag flag){
     return true ? ((uflags & flag) == flag) : false;
 }
-bool loader_flags::has_flag(windows_flag flag) {
+bool loader_flags::has_flag(windows_flag flag){
     return true ? ((wflags & flag) == flag) : false;
 }
 
-void loader_flags::clear_unix_flags() { uflags = unix_flags::LOAD_LAZY; }
-void loader_flags::clear_windows_flags() { wflags = 0; }
+void loader_flags::clear_unix_flags(){ uflags = unix_flags::LOAD_LAZY; }
+void loader_flags::clear_windows_flags(){ wflags = 0; }
 
-unsigned int loader_flags::get_unix_flags() { return uflags; }
-unsigned int loader_flags::get_windows_flags() { return wflags; }
+unsigned int loader_flags::get_unix_flags(){ return uflags; }
+unsigned int loader_flags::get_windows_flags(){ return wflags; }
 
-} // rll
+} //rll
 //-----------------------------------END_IF-----------------------------------//
 #endif //RLL_HPP_
