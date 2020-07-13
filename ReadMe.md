@@ -2,7 +2,7 @@
 
 # RLL
 
-RLL is a multi-platform, thread-safe, runtime dynamic/shared library loader. Its name stands for exactly what it does: Runtime Library Loader. It's light (<300 *lines*) and is header-only library.
+RLL is a multi-platform, thread-safe, runtime dynamic/shared library loader. Its name stands for exactly what it does: Runtime Library Loader. It's light (<300 *lines*) and is header-only library. And best of all it's public domain!
 
 Care for an example?
 
@@ -29,6 +29,10 @@ int main(){
 ```
 
 RLL is unit tested for safety and code reliability.
+
+### Requirements:
+
+A C++11 supported compiler. There is a C++98 supported branch that mirrors version 1.0.0 with the needed changes and hotfixes.
 
 ### Dependencies:
 
@@ -63,3 +67,11 @@ C++ names are "mangled" to allow for multiple symbols with the same name in sour
 **Not linking `dl`:**
 
 It's important that on POSIX (Unix-like) systems you link `dl`. It is the system library that allows you to load shared libraries. If you don't link it you will get undefined symbol errors.
+
+**SEG FAULT**:
+
+I can't really help you with that. You are going to need a debugger.
+
+## Licensure:
+
+PUBLIC DOMAIN!!!!

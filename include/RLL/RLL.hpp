@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <mutex>
+#include <functional>
 //------------------------------------RLL-------------------------------------//
 #define RLL_VERSION_MAJOR 1
 #define RLL_VERSION_MINOR 0
@@ -169,6 +170,11 @@ class loader_flags {
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief An interface for loading shared libraries at run-time.
 ///
+/// @warning RLL doesn't support (at least at this time) the checking of symbol
+/// types. This means that RLL doesn't know the type of a symbol and can't
+/// safeguard against segmentation faults. This must be debugged and caught by
+/// you.
+///
 /// @details Hey! This is a simple class that allows for simple yet powerful
 /// interface for loading and processing shared libraries (dynamic libraries) at
 /// run-time. It is completely multi-platform (for the operating systems you
@@ -180,8 +186,6 @@ class loader_flags {
 ///
 /// Better than anything is a code example:
 /// ```cpp
-/// //The function signature using for briefness.
-/// using func_type = int(int, int);
 /// //Contains a function add two integers:
 /// rll::shared_library test_lib;
 /// try {
@@ -190,10 +194,10 @@ class loader_flags {
 ///     std::cout << "Oh noes! We had an issue loading the shared library:\n" << e.what() << "\n"; 
 /// }
 ///
-/// std::function<func_type> add_function;
+/// std::function<int(int, int)> add_function;
 ///
 /// if(test_lib.has_symbol("add")){
-///     add_function = reinterpret_cast<func_type*>(test_lib.get_symbol("add"));
+///     add_function = test_lib.get_function_symbol<int(int, int)>("add"));
 /// }
 ///
 /// std::cout << add_function(2, 4) << "\n"; //returns "6";
@@ -302,6 +306,30 @@ class shared_library {
 		/// @throw rll::exception::symbol_not_found
 		////////////////////////////////////////////////////////////////////////////////
 		void * get_symbol(const std::string& name);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        /// @brief Attempts to get a pointer to the object at a symbol.
+        /// 
+        /// @tparam object_type The type of the symbol being accessed.
+        /// @param name The name of the symbol.
+        /// @return object_type* A pointer to the object being accessed.
+        ////////////////////////////////////////////////////////////////////////////////
+        template<typename object_type>
+        object_type * get_object_symbol(const std::string& name){
+            return static_cast<object_type *>(get_symbol(name));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        /// @brief Attempts to get a std::function pointing to function symbol.
+        /// 
+        /// @tparam signature The function signature.
+        /// @param name The name of the symbol.
+        /// @return std::function<signature> The returned function symbol.
+        ////////////////////////////////////////////////////////////////////////////////
+        template<typename signature>
+        std::function<signature> get_function_symbol(const std::string& name){
+            return reinterpret_cast<signature *>(get_symbol(name));
+        }
 
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Get a symbol without exception handling.
