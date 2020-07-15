@@ -2,16 +2,12 @@
 // It is public domain:
 // Copyright (c) 2020 Elijah Hopp, No Rights Reserved.
 
-std::mutex shared_library::_mutex;
-
 shared_library::shared_library(){
 	lib_handle = 0;
 }
 shared_library::~shared_library(){}
 
 void shared_library::load(const std::string& path, int flags){
-	std::lock_guard<std::mutex> lock(_mutex);
-
 	if(lib_handle != 0){ 
 		throw exception::library_already_loaded(lib_path);
 	}
@@ -30,8 +26,6 @@ void shared_library::load(const std::string& path, loader_flags flags){
 }
 
 void shared_library::unload(){
-	std::lock_guard<std::mutex> lock(_mutex);
-
 	if(lib_handle != 0){
 		FreeLibrary((HMODULE) lib_handle);
 		lib_handle = 0;
@@ -47,19 +41,14 @@ bool shared_library::is_loaded(){
 
 
 void * shared_library::get_symbol(const std::string& name){
-	std::lock_guard<std::mutex> lock(_mutex);
-
 	if(lib_handle != 0){
-		
 		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
 		throw exception::library_not_loaded();
 	}
 }
 
-void * shared_library::get_symbol_fast(const std::string& name) noexcept {
-	std::lock_guard<std::mutex> lock(_mutex);
-
+void * shared_library::get_symbol_fast(const std::string& name){
 	if(lib_handle != 0){
 		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
