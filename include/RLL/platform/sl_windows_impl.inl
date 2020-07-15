@@ -5,14 +5,14 @@
 std::mutex shared_library::_mutex;
 
 shared_library::shared_library(){
-	lib_handle = nullptr;
+	lib_handle = 0;
 }
 shared_library::~shared_library(){}
 
 void shared_library::load(const std::string& path, int flags){
 	std::lock_guard<std::mutex> lock(_mutex);
 
-	if(lib_handle != nullptr){ 
+	if(lib_handle != 0){ 
 		throw exception::library_already_loaded(lib_path);
 	}
 
@@ -32,9 +32,9 @@ void shared_library::load(const std::string& path, loader_flags flags){
 void shared_library::unload(){
 	std::lock_guard<std::mutex> lock(_mutex);
 
-	if(lib_handle != nullptr){
+	if(lib_handle != 0){
 		FreeLibrary((HMODULE) lib_handle);
-		lib_handle = nullptr;
+		lib_handle = 0;
 	}
 
 	lib_path.clear();
@@ -42,14 +42,14 @@ void shared_library::unload(){
 
 
 bool shared_library::is_loaded(){
-	return lib_handle != nullptr;
+	return lib_handle != 0;
 }
 
 
 void * shared_library::get_symbol(const std::string& name){
 	std::lock_guard<std::mutex> lock(_mutex);
 
-	if(lib_handle != nullptr){
+	if(lib_handle != 0){
 		
 		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
@@ -60,10 +60,10 @@ void * shared_library::get_symbol(const std::string& name){
 void * shared_library::get_symbol_fast(const std::string& name) noexcept {
 	std::lock_guard<std::mutex> lock(_mutex);
 
-	if(lib_handle != nullptr){
+	if(lib_handle != 0){
 		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
-		return nullptr;
+		return 0;
 	}
 }
 

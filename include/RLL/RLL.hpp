@@ -8,7 +8,6 @@
 #include <exception>
 #include <cstring>
 #include <string>
-#include <mutex>
 //------------------------------------RLL-------------------------------------//
 #define RLL_VERSION_MAJOR 1
 #define RLL_VERSION_MINOR 0
@@ -78,9 +77,6 @@ enum windows_flag {
 
 } //windows_flag
 
-using windows_flag = windows_flags::windows_flag;
-using unix_flag = unix_flags::unix_flag;
-
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief A container for library loader flags. 
 ///
@@ -107,42 +103,42 @@ class loader_flags {
         /// @param unix_flags All the Unix loader flags you want enabled.
         /// @param windows_flags All the Windows loader flags you want enabled.
         ////////////////////////////////////////////////////////////////////////////////
-        loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags);
+        loader_flags(int unix_flags, int windows_flags);
 
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Add a Unix loader flag to the internal flags.
         /// @param flag The flag.
         ////////////////////////////////////////////////////////////////////////////////
-        void add_flag(unix_flag flag);
+        void add_uflag(int flag);
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Add Window loader flag to the internal flags.
         /// @param flag The flag.
         ////////////////////////////////////////////////////////////////////////////////
-        void add_flag(windows_flag flag);
+        void add_wflag(int flag);
 
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Remove an Unix loader flag.
         /// @param flag The flag.
         ////////////////////////////////////////////////////////////////////////////////
-        void remove_flag(unix_flag flag);
+        void remove_uflag(int flag);
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Remove a Windows loader flag.
         /// @param flag The flag.
         ////////////////////////////////////////////////////////////////////////////////
-        void remove_flag(windows_flag flag);
+        void remove_wflag(int flag);
 
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Unix loader flag in the internal flags.
         /// @param flag The flag that is searched for.
         /// @return bool Wether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
-        bool has_flag(unix_flag flag);
+        bool has_uflag(int flag);
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Looks for a Windows loader flag in the internal flags.
         /// @param flag The flag that is searched for.
         /// @return bool Wether the flag is present.
         ////////////////////////////////////////////////////////////////////////////////
-        bool has_flag(windows_flag flag);
+        bool has_wflag(int flag);
 
         ////////////////////////////////////////////////////////////////////////////////
         /// @brief Get the Unix loader flags.
@@ -210,7 +206,6 @@ class shared_library {
 		//
 		std::string lib_path;
 		void * lib_handle;
-		static std::mutex _mutex;
 		//
 		void load(const std::string& path, int flags);
 	public:
@@ -282,7 +277,7 @@ class shared_library {
 		///
 		/// @throw rll::exception::library_not_loaded
 		////////////////////////////////////////////////////////////////////////////////
-		bool has_symbol(const std::string& name){ return get_symbol_fast(name) != nullptr; }
+		bool has_symbol(const std::string& name){ return get_symbol_fast(name) != 0x0; }
 
 		////////////////////////////////////////////////////////////////////////////////
 		/// @brief Attempts to retreive a symbol.
@@ -315,7 +310,7 @@ class shared_library {
         /// @return void* A pointer to the acessed symbol (typically a nullptr
         /// if it failed.)
         ////////////////////////////////////////////////////////////////////////////////
-        void * get_symbol_fast(const std::string& name) noexcept;
+        void * get_symbol_fast(const std::string& name);
 
 		////////////////////////////////////////////////////////////////////////////////
 		/// @brief Get the path to the loaded shared library.
@@ -356,15 +351,16 @@ class shared_library {
         public: \
             METADATA_TYPE METADATA_NAME; \
             EXCP_NAME(METADATA_TYPE METADATA_NAME) : METADATA_NAME(METADATA_NAME){} \
-            const char* what() const noexcept { \
+            const char* what(){ \
                 WHAT_RETURN \
             } \
+            virtual ~EXCP_NAME() throw() {}\
     }; \
 
 #define RLL_DEFINE_EXCEPTION(EXCP_NAME, WHAT_RETURN)\
     class EXCP_NAME : public rll_exception { \
         public: \
-            const char* what() const noexcept { \
+            const char* what(){ \
                 WHAT_RETURN \
             } \
     }; \
@@ -403,51 +399,45 @@ RLL_DEFINE_EXCEPTION_W_METADATA(library_loading_error, std::string, loading_erro
 #include "platform/sl_unix_impl.inl"
 #endif
 
-loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
-    uflags = 0;
-    wflags = 0;
-    for(auto& it : unix_flags){
-        add_flag(it);
-    }
-    for(auto& it : windows_flags){
-        add_flag(it);
-    }
+loader_flags::loader_flags(int unix_flags, int windows_flags){
+    uflags = unix_flags;
+    wflags = windows_flags;
 }
 
-void loader_flags::add_flag(unix_flag flag){ 
+void loader_flags::add_uflag(int flag){ 
     //LOAD_LAZY and LOAD_NOW are mutually exclusive:
     if(flag == unix_flags::LOAD_LAZY){
-        if(this->has_flag(unix_flags::LOAD_NOW)){
-            remove_flag(unix_flags::LOAD_NOW);
+        if(this->has_uflag(unix_flags::LOAD_NOW)){
+            remove_uflag(unix_flags::LOAD_NOW);
         }
     } else if(flag == unix_flags::LOAD_NOW){
-        if(this->has_flag(unix_flags::LOAD_LAZY)){
-            remove_flag(unix_flags::LOAD_LAZY);
+        if(this->has_uflag(unix_flags::LOAD_LAZY)){
+            remove_uflag(unix_flags::LOAD_LAZY);
         }
     }
 
     uflags |= flag; 
 }
 
-void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
+void loader_flags::add_wflag(int flag){ wflags |= flag; }
 
-void loader_flags::remove_flag(unix_flag flag){ 
+void loader_flags::remove_uflag(int flag){ 
     if(flag == unix_flags::LOAD_LAZY){
         uflags &= ~flag;
-        add_flag(unix_flags::LOAD_NOW);
+        add_uflag(unix_flags::LOAD_NOW);
     } else if(flag == unix_flags::LOAD_NOW){
         uflags &= ~flag;
-        add_flag(unix_flags::LOAD_LAZY);
+        add_uflag(unix_flags::LOAD_LAZY);
     }
 
     uflags &= ~flag; 
 }
-void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
+void loader_flags::remove_wflag(int flag){ wflags &= ~flag; }
 
-bool loader_flags::has_flag(unix_flag flag){
+bool loader_flags::has_uflag(int flag){
     return true ? ((uflags & flag) == flag) : false;
 }
-bool loader_flags::has_flag(windows_flag flag){
+bool loader_flags::has_wflag(int flag){
     return true ? ((wflags & flag) == flag) : false;
 }
 

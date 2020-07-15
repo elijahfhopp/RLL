@@ -1,4 +1,4 @@
-> Before you open an issue please check out the [common issues](#common-issues) section of the ReadMe.
+> You are on the C++98 branch! This is not master! Legacy supporting code!
 
 # RLL
 

@@ -12,5 +12,4 @@ if(NOT WIN32)
     target_link_libraries(RLL_example PRIVATE dl)
 endif()
 
-enable_testing()
-add_subdirectory(src/tests)
+set_target_properties(RLL_example PROPERTIES CXX_STANDARD 98)
