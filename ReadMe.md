@@ -2,7 +2,7 @@
 
 # RLL
 
-RLL is a multi-platform, thread-safe, runtime dynamic/shared library loader. Its name stands for exactly what it does: Runtime Library Loader. It's light (<300 *lines*) and is header-only library.
+RLL is a multi-platform, thread-safe, runtime dynamic/shared library loader. Its name stands for exactly what it does: Runtime Library Loader. It's light (<300 *lines* of code) and is header-only library. And best of all it's public domain!
 
 Care for an example?
 
@@ -20,15 +20,17 @@ int main(){
         // Handle exceptions.
     }
 
-    if (my_lib.has_symbol("my_symbol")) {
-        void * my_func_ptr = my_lib.get_symbol("my_func");
-        std::function<void()> my_func = reinterpret_cast<void(*)()>(my_func_ptr);
-        my_func(); // Does something... :). Maybe says "Hello, World!" or the sort.
+    if(test_lib.has_symbol("add")){
+        add_function = test_lib.get_function_symbol<int(int, int)>("add"));
     }
 }
 ```
 
 RLL is unit tested for safety and code reliability.
+
+### Requirements:
+
+A C++11 supported compiler. There is a C++98 supported branch that mirrors version 1.0.0 with the needed changes and hotfixes.
 
 ### Dependencies:
 
@@ -44,7 +46,7 @@ if you are using CMake.
 
 ## I just wanna jump into it!
 
-Well the docs are generated with Doxygen and can be easily accessed in the `docs/` folder. Beyond that, there isn't much I need to tell you. Oh, one or two things: Have FUN! Happy coding. And be sure to checkout the [common issues](#common-issues) area if you run into an issues. And let me know any other issues via opening an issue, or maybe even a PR. And... well that I don't always keep my promises... :).
+The docs are generated with Doxygen and can be easily accessed in the `docs/` folder. Be sure to checkout the [common issues](#common-issues) area if you run into an issues. And let me know any other issues via opening an issue, or maybe even a PR.
 
 ## Common issues:
 
@@ -58,8 +60,16 @@ Federico Kircheis](https://fekir.info/post/global-variables-in-cpp-libraries/).
 
 **Not using `extern "C"` for C++ libraries**:
 
-C++ names are "mangled" to allow for multiple symbols with the same name in source code. This allows for namespaces and templates among other things, so stop complaining, :). Reversing name-mangling may be a future RLL feature, but it isn't a priority right now as it is often standard to do this anyway.
+C++ names are "mangled" to allow for multiple symbols with the same name in source code. This allows for namespaces and templates among other things. Reversing name-mangling may be a future RLL feature, but it isn't a priority right now as name mangling is non-standard compiler implemented.
 
 **Not linking `dl`:**
 
 It's important that on POSIX (Unix-like) systems you link `dl`. It is the system library that allows you to load shared libraries. If you don't link it you will get undefined symbol errors.
+
+**SEG FAULT**:
+
+I can't really help you with that. You are going to need a debugger.
+
+## Licensure:
+
+PUBLIC DOMAIN!!!!
