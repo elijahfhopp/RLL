@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <mutex>
+#include <functional>
 //------------------------------------RLL-------------------------------------//
 #define RLL_VERSION_MAJOR 1
 #define RLL_VERSION_MINOR 0
@@ -169,6 +170,11 @@ class loader_flags {
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief An interface for loading shared libraries at run-time.
 ///
+/// @warning RLL doesn't support (at least at this time) the checking of symbol
+/// types. This means that RLL doesn't know the type of a symbol and can't
+/// safeguard against segmentation faults. This must be debugged and caught by
+/// you.
+///
 /// @details Hey! This is a simple class that allows for simple yet powerful
 /// interface for loading and processing shared libraries (dynamic libraries) at
 /// run-time. It is completely multi-platform (for the operating systems you
@@ -180,8 +186,6 @@ class loader_flags {
 ///
 /// Better than anything is a code example:
 /// ```cpp
-/// //The function signature using for briefness.
-/// using func_type = int(int, int);
 /// //Contains a function add two integers:
 /// rll::shared_library test_lib;
 /// try {
@@ -190,10 +194,10 @@ class loader_flags {
 ///     std::cout << "Oh noes! We had an issue loading the shared library:\n" << e.what() << "\n"; 
 /// }
 ///
-/// std::function<func_type> add_function;
+/// std::function<int(int, int)> add_function;
 ///
 /// if(test_lib.has_symbol("add")){
-///     add_function = reinterpret_cast<func_type*>(test_lib.get_symbol("add"));
+///     add_function = test_lib.get_function_symbol<int(int, int)>("add"));
 /// }
 ///
 /// std::cout << add_function(2, 4) << "\n"; //returns "6";
@@ -304,6 +308,30 @@ class shared_library {
 		void * get_symbol(const std::string& name);
 
         ////////////////////////////////////////////////////////////////////////////////
+        /// @brief Attempts to get a pointer to the object at a symbol.
+        /// 
+        /// @tparam object_type The type of the symbol being accessed.
+        /// @param name The name of the symbol.
+        /// @return object_type* A pointer to the object being accessed.
+        ////////////////////////////////////////////////////////////////////////////////
+        template<typename object_type>
+        object_type * get_object_symbol(const std::string& name){
+            return reinterpret_cast<object_type *>(get_symbol(name));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        /// @brief Attempts to get a std::function pointing to function symbol.
+        /// 
+        /// @tparam signature The function signature.
+        /// @param name The name of the symbol.
+        /// @return std::function<signature> The returned function symbol.
+        ////////////////////////////////////////////////////////////////////////////////
+        template<typename signature>
+        std::function<signature> get_function_symbol(const std::string& name){
+            return reinterpret_cast<signature *>(get_symbol(name));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
         /// @brief Get a symbol without exception handling.
         ///
         /// @details A fast symbol accessor that doesn't handle exception states
@@ -403,7 +431,7 @@ RLL_DEFINE_EXCEPTION_W_METADATA(library_loading_error, std::string, loading_erro
 #include "platform/sl_unix_impl.inl"
 #endif
 
-loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
+inline loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
     uflags = 0;
     wflags = 0;
     for(auto& it : unix_flags){
@@ -414,7 +442,7 @@ loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::ini
     }
 }
 
-void loader_flags::add_flag(unix_flag flag){ 
+inline void loader_flags::add_flag(unix_flag flag){ 
     //LOAD_LAZY and LOAD_NOW are mutually exclusive:
     if(flag == unix_flags::LOAD_LAZY){
         if(this->has_flag(unix_flags::LOAD_NOW)){
@@ -429,9 +457,9 @@ void loader_flags::add_flag(unix_flag flag){
     uflags |= flag; 
 }
 
-void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
+inline void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
 
-void loader_flags::remove_flag(unix_flag flag){ 
+inline void loader_flags::remove_flag(unix_flag flag){ 
     if(flag == unix_flags::LOAD_LAZY){
         uflags &= ~flag;
         add_flag(unix_flags::LOAD_NOW);
@@ -442,20 +470,20 @@ void loader_flags::remove_flag(unix_flag flag){
 
     uflags &= ~flag; 
 }
-void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
+inline void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
 
-bool loader_flags::has_flag(unix_flag flag){
+inline bool loader_flags::has_flag(unix_flag flag){
     return true ? ((uflags & flag) == flag) : false;
 }
-bool loader_flags::has_flag(windows_flag flag){
+inline bool loader_flags::has_flag(windows_flag flag){
     return true ? ((wflags & flag) == flag) : false;
 }
 
-void loader_flags::clear_unix_flags(){ uflags = unix_flags::LOAD_LAZY; }
-void loader_flags::clear_windows_flags(){ wflags = 0; }
+inline void loader_flags::clear_unix_flags(){ uflags = unix_flags::LOAD_LAZY; }
+inline void loader_flags::clear_windows_flags(){ wflags = 0; }
 
-unsigned int loader_flags::get_unix_flags(){ return uflags; }
-unsigned int loader_flags::get_windows_flags(){ return wflags; }
+inline unsigned int loader_flags::get_unix_flags(){ return uflags; }
+inline unsigned int loader_flags::get_windows_flags(){ return wflags; }
 
 } //rll
 //-----------------------------------END_IF-----------------------------------//
