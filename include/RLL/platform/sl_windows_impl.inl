@@ -20,9 +20,17 @@ inline void shared_library::load(const std::string& path, int flags){
 	}
 
 	lib_handle = LoadLibraryExA(path.c_str(), 0, flags);
-
+	
 	if(!lib_handle){
-		throw exception::library_loading_error(path);
+		DWORD error_code = GetLastError();
+		LPSTR message_buffer = nullptr;
+		size_t size = FormatMessageA(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr, error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPSTR)&message_buffer, 0, nullptr);
+		std::string error_message(message_buffer, size);
+		LocalFree(message_buffer);
+		throw exception::library_loading_error(error_message);
 	}
 
 	lib_path = path;

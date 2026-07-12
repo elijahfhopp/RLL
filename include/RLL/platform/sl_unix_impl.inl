@@ -23,7 +23,7 @@ inline void shared_library::load(const std::string& path, int flags){
 	
 	if(lib_handle == nullptr){
 		const char* error = dlerror();
-		throw exception::library_loading_error(error);
+		throw exception::library_loading_error(error ? error : "Unknown error from dlopen()");
 	}
 	
 	lib_path = path;
