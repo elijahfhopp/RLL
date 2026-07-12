@@ -53,7 +53,7 @@ inline void * shared_library::get_symbol(const std::string& name){
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
-		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
+		return reinterpret_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
 		throw exception::library_not_loaded();
 	}
@@ -63,7 +63,7 @@ inline void * shared_library::get_symbol_fast(const std::string& name) noexcept 
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
-		return static_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
+		return reinterpret_cast<void *>(GetProcAddress((HMODULE) lib_handle, name.c_str()));
 	} else {
 		return nullptr;
 	}
