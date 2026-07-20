@@ -316,7 +316,7 @@ class shared_library {
         ////////////////////////////////////////////////////////////////////////////////
         template<typename object_type>
         object_type * get_object_symbol(const std::string& name){
-            return static_cast<object_type *>(get_symbol(name));
+            return reinterpret_cast<object_type *>(get_symbol(name));
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +431,7 @@ RLL_DEFINE_EXCEPTION_W_METADATA(library_loading_error, std::string, loading_erro
 #include "platform/sl_unix_impl.inl"
 #endif
 
-loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
+inline loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::initializer_list<windows_flag> windows_flags){
     uflags = 0;
     wflags = 0;
     for(auto& it : unix_flags){
@@ -442,7 +442,7 @@ loader_flags::loader_flags(std::initializer_list<unix_flag> unix_flags, std::ini
     }
 }
 
-void loader_flags::add_flag(unix_flag flag){ 
+inline void loader_flags::add_flag(unix_flag flag){ 
     //LOAD_LAZY and LOAD_NOW are mutually exclusive:
     if(flag == unix_flags::LOAD_LAZY){
         if(this->has_flag(unix_flags::LOAD_NOW)){
@@ -457,9 +457,9 @@ void loader_flags::add_flag(unix_flag flag){
     uflags |= flag; 
 }
 
-void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
+inline void loader_flags::add_flag(windows_flag flag){ wflags |= flag; }
 
-void loader_flags::remove_flag(unix_flag flag){ 
+inline void loader_flags::remove_flag(unix_flag flag){ 
     if(flag == unix_flags::LOAD_LAZY){
         uflags &= ~flag;
         add_flag(unix_flags::LOAD_NOW);
@@ -470,20 +470,20 @@ void loader_flags::remove_flag(unix_flag flag){
 
     uflags &= ~flag; 
 }
-void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
+inline void loader_flags::remove_flag(windows_flag flag){ wflags &= ~flag; }
 
-bool loader_flags::has_flag(unix_flag flag){
+inline bool loader_flags::has_flag(unix_flag flag){
     return true ? ((uflags & flag) == flag) : false;
 }
-bool loader_flags::has_flag(windows_flag flag){
+inline bool loader_flags::has_flag(windows_flag flag){
     return true ? ((wflags & flag) == flag) : false;
 }
 
-void loader_flags::clear_unix_flags(){ uflags = unix_flags::LOAD_LAZY; }
-void loader_flags::clear_windows_flags(){ wflags = 0; }
+inline void loader_flags::clear_unix_flags(){ uflags = unix_flags::LOAD_LAZY; }
+inline void loader_flags::clear_windows_flags(){ wflags = 0; }
 
-unsigned int loader_flags::get_unix_flags(){ return uflags; }
-unsigned int loader_flags::get_windows_flags(){ return wflags; }
+inline unsigned int loader_flags::get_unix_flags(){ return uflags; }
+inline unsigned int loader_flags::get_windows_flags(){ return wflags; }
 
 } //rll
 //-----------------------------------END_IF-----------------------------------//

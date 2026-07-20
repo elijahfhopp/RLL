@@ -2,17 +2,17 @@
 // It is public domain:
 // Copyright (c) 2020 Elijah Hopp, No Rights Reserved.
 
-std::mutex shared_library::_mutex;
+inline std::mutex shared_library::_mutex;
 
-shared_library::shared_library(){
+inline shared_library::shared_library(){
 	lib_handle = nullptr;
 }
 
-shared_library::~shared_library(){
+inline shared_library::~shared_library(){
 	unload();
 }
 
-void shared_library::load(const std::string& path, int flags){
+inline void shared_library::load(const std::string& path, int flags){
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){ 
@@ -23,17 +23,17 @@ void shared_library::load(const std::string& path, int flags){
 	
 	if(lib_handle == nullptr){
 		const char* error = dlerror();
-		throw exception::library_loading_error(error);
+		throw exception::library_loading_error(error ? error : "Unknown error from dlopen()");
 	}
 	
 	lib_path = path;
 }
 
-void shared_library::load(const std::string& path, loader_flags flags){
+inline void shared_library::load(const std::string& path, loader_flags flags){
 	load(path, flags.get_unix_flags());
 }
 
-void shared_library::unload(){
+inline void shared_library::unload(){
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
@@ -45,12 +45,12 @@ void shared_library::unload(){
 }
 
 
-bool shared_library::is_loaded(){
+inline bool shared_library::is_loaded(){
 	return lib_handle != nullptr;
 }
 
 
-void * shared_library::get_symbol(const std::string& name){
+inline void * shared_library::get_symbol(const std::string& name){
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
@@ -69,7 +69,7 @@ void * shared_library::get_symbol(const std::string& name){
 	}
 }
 
-void * shared_library::get_symbol_fast(const std::string& name) noexcept {
+inline void * shared_library::get_symbol_fast(const std::string& name) noexcept {
 	std::lock_guard<std::mutex> lock(_mutex);
 
 	if(lib_handle != nullptr){
@@ -80,15 +80,15 @@ void * shared_library::get_symbol_fast(const std::string& name) noexcept {
 }
 
 
-const std::string& shared_library::get_path(){
+inline const std::string& shared_library::get_path(){
 	return lib_path;
 }
 
-void * shared_library::get_platform_handle(){
+inline void * shared_library::get_platform_handle(){
 	return lib_handle;
 }
 
-std::string shared_library::get_platform_suffix(){
+inline std::string shared_library::get_platform_suffix(){
 	#if defined(__APPLE__)
 		return ".dylib";
 	#elif defined(__CYGWIN__)
